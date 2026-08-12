@@ -18,7 +18,6 @@ import type {
 import {
   createStudent,
   updateStudent,
-  getStudents,
 } from '../lib/students'
 
 import {

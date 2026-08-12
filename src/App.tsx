@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import {
   CalendarDays,
   ChartNoAxesColumn,
@@ -6,17 +6,25 @@ import {
 } from 'lucide-react'
 
 import {
-  lessons as initialLessons,
-} from './data/mockData'
+  getLessons,
+  createLesson,
+  updateLesson} from './lib/lessons'
+
+import {
+  getStudents,
+  } from './lib/students'
+
 
 import type {
   Lesson,
   LessonDuration,
+  Student,
 } from './data/mockData'
 
 import Calendar from './pages/Calendar'
 import Students from './pages/Students'
 import Reports from './pages/Reports'
+
 
 type Page =
   | 'calendar'
@@ -104,12 +112,66 @@ function App() {
       'calendar',
     )
 
+
+    
   const [lessons, setLessons] =
-    useState<Lesson[]>(
-      initialLessons,
+    useState<Lesson[]>([])
+
+    const [students, setStudents] =
+  useState<Student[]>([])
+
+    useEffect(() => {
+
+  async function loadData(){
+
+    console.log('loading data')
+
+
+    const lessonsData =
+      await getLessons()
+
+
+    const studentsData =
+      await getStudents()
+
+
+    setLessons(
+      lessonsData,
     )
 
-  const handleSaveLesson = (
+
+    setStudents(
+      studentsData,
+    )
+
+
+    console.log(
+      'lessons:',
+      lessonsData,
+    )
+
+
+    console.log(
+      'students:',
+      studentsData,
+    )
+
+  }
+
+
+  loadData()
+
+}, [])
+
+const reloadStudents = async () => {
+  const data =
+    await getStudents()
+
+  setStudents(data)
+}
+
+
+  const handleSaveLesson = async(
     lessonId: string,
     changes: LessonChanges,
   ) => {
@@ -157,22 +219,31 @@ function App() {
       return
     }
 
-    setLessons(
-      current =>
-        current.map(
-          lesson =>
-            lesson.id ===
-            lessonId
-              ? {
-                  ...lesson,
-                  ...changes,
-                }
-              : lesson,
-        ),
-    )
+const success =
+  await updateLesson(
+    lessonId,
+    changes,
+  )
+
+
+if (!success) {
+  window.alert(
+    'Failed to save lesson'
+  )
+  return
+}
+
+
+const refreshedLessons =
+  await getLessons()
+
+
+setLessons(
+  refreshedLessons,
+)
   }
 
-  const handleCreateLesson = (
+  const handleCreateLesson = async (
     changes: LessonChanges,
   ) => {
     const overlaps =
@@ -206,31 +277,27 @@ function App() {
       return
     }
 
-    const newLesson: Lesson = {
-      id: `lesson-${Date.now()}`,
-      title:
-        changes.title,
-      date:
-        changes.date,
-      startTime:
-        changes.startTime,
-      plannedDuration:
-        changes.plannedDuration,
-      actualDurationMinutes:
-        null,
-      students:
-        changes.students,
-      completed: false,
-      notes:
-        changes.notes,
-    }
+    const createdLesson =
+  await createLesson(
+    changes,
+  )
 
-    setLessons(
-      current => [
-        ...current,
-        newLesson,
-      ],
-    )
+
+if (!createdLesson) {
+  window.alert(
+    'Failed to create lesson'
+  )
+  return
+}
+
+
+const refreshedLessons =
+  await getLessons()
+
+
+setLessons(
+  refreshedLessons,
+)
   }
 
   const navigation = [
@@ -361,9 +428,11 @@ function App() {
         {page === 'students' && (
           <Students
             lessons={lessons}
+            students={students}
             onSaveLesson={
               handleSaveLesson
             }
+            onStudentsChanged={reloadStudents}
           />
         )}
 

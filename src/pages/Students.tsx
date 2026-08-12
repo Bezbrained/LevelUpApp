@@ -7,7 +7,7 @@ import {
   Search,
 } from 'lucide-react'
 
-import { students } from '../data/mockData'
+
 
 import type {
   Lesson,
@@ -16,14 +16,22 @@ import type {
 } from '../data/mockData'
 
 import {
+  createStudent,
+  updateStudent,
+  getStudents,
+} from '../lib/students'
+
+import {
   academicHoursFromMinutes,
 } from '../data/mockData'
 
 import LessonModal from '../components/LessonModal'
+import StudentModal from '../components/StudentModal'
 
 type StudentsProps = {
   lessons: Lesson[]
-
+  students: Student[]
+  onStudentsChanged: () => Promise<void>
   onSaveLesson: (
     lessonId: string,
     changes: {
@@ -161,10 +169,14 @@ function getLessonType(
 
 function Students({
   lessons,
+  students,
+  onStudentsChanged,
   onSaveLesson,
 }: StudentsProps) {
   const [search, setSearch] =
     useState('')
+
+    
 
   const [selectedStudent, setSelectedStudent] =
     useState<Student | null>(null)
@@ -186,8 +198,59 @@ function Students({
       )
     })
 
+const handleSaveStudent = async (
+  changes: {
+    name: string
+    school: string
+    grade: string
+    notes: string
+    age?: number
+    books: string
+    contact: string
+  },
+) => {
+
+  if (selectedStudent) {
+
+    const success =
+      await updateStudent(
+        selectedStudent.id,
+        changes,
+      )
+
+    if (!success) {
+      return
+    }
+
+  } else {
+
+    const created =
+      await createStudent(
+        changes,
+      )
+
+    if (!created) {
+      return
+    }
+
+  }
+
+
+  await onStudentsChanged()
+
+
+  setShowStudentModal(false)
+}
+
+
   const [showStudentInfo, setShowStudentInfo] =
     useState(false)
+
+    const [showStudentModal, setShowStudentModal] =
+  useState(false)
+
+  const [editingStudent, setEditingStudent] =
+  useState<Student | null>(null)
 
   /*
    * Lessons belonging to a student are determined
@@ -371,6 +434,7 @@ function Students({
   const getLessonsForDate = (
     date: string,
   ) => {
+
     if (!selectedStudent) {
       return []
     }
@@ -476,7 +540,6 @@ function Students({
 
     setSelectedDate(null)
   }
-
   const isToday = (
     date: Date,
   ) => {
@@ -506,6 +569,15 @@ function Students({
             <p className="mt-1 text-sm text-zinc-500">
               Students with lessons in the selected month
             </p>
+            <button
+  onClick={() => {
+    setEditingStudent(null)
+    setShowStudentModal(true)
+  }}
+  className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white"
+>
+  + New Student
+</button>
           </div>
 
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1110,6 +1182,16 @@ function Students({
           />
         )}
       </div>
+      {showStudentModal && (
+  <StudentModal
+    student={editingStudent}
+    onSave={handleSaveStudent}
+    onClose={() => {
+      setShowStudentModal(false)
+      setSelectedStudent(null)
+    }}
+  />
+)}
     </div>
   )
 }

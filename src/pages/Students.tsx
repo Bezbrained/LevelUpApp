@@ -31,7 +31,7 @@ type StudentsProps = {
       date: string
       startTime: string
       plannedDuration: LessonDuration
-      actualDurationMinutes: LessonDuration
+      actualDurationMinutes: LessonDuration | null
       students: {
         studentId: string
         attended: boolean
@@ -301,12 +301,6 @@ function Students({
               selectedStudent?.id &&
             student.attended,
         ),
-    )
-
-  const scheduledLessons =
-    studentLessons.filter(
-      lesson =>
-        !lesson.completed,
     )
 
   /*
@@ -1109,6 +1103,7 @@ function Students({
           <LessonModal
             lesson={selectedLesson}
             onSave={onSaveLesson}
+            onCreate={() => {}}
             onClose={() =>
               setSelectedLesson(null)
             }

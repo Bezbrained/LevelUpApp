@@ -37,7 +37,7 @@ type LessonModalProps = {
     changes: LessonChanges,
   ) => void
 
-  onCreate: (
+  onCreate?: (
     changes: LessonChanges,
   ) => void
 
@@ -236,11 +236,14 @@ function LessonModal({
     }
 
     if (isCreating) {
-      onCreate(
-        buildChanges(),
-      )
-      return
-    }
+  if (onCreate) {
+    onCreate(
+      buildChanges(),
+    )
+  }
+
+  return
+}
 
     onSave(
       lesson.id,

@@ -7,7 +7,7 @@ import {
   Search,
 } from 'lucide-react'
 
-
+import type { LessonChanges } from '../types/lessonChanges'
 
 import type {
   Lesson,
@@ -38,21 +38,9 @@ type StudentsProps = {
   ) => void
 
   onSaveLesson: (
-    lessonId: string,
-    changes: {
-      title: string
-      date: string
-      startTime: string
-      plannedDuration: LessonDuration
-      actualDurationMinutes: LessonDuration | null
-      students: {
-        studentId: string
-        attended: boolean
-      }[]
-      notes: string
-      completed: boolean
-    },
-  ) => void
+  lessonId: string,
+  changes: LessonChanges,
+) => void
 }
 
 const monthNames = [

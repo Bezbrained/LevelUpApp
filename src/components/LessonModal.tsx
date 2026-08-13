@@ -15,19 +15,7 @@ import type {
   LessonDuration,
 } from '../types'
 
-type LessonChanges = {
-  title: string
-  date: string
-  startTime: string
-  plannedDuration: LessonDuration
-  actualDurationMinutes: LessonDuration | null
-  students: {
-    studentId: string
-    attended: boolean
-  }[]
-  notes: string
-  completed: boolean
-}
+import type { LessonChanges } from '../types/lessonChanges'
 
 type LessonModalProps = {
   lesson: Lesson
@@ -44,7 +32,9 @@ type LessonModalProps = {
 
   onClose: () => void
 
-  onDelete?: () => void
+  onDelete?: (
+  mode: 'single' | 'following',
+) => void
 
   initialMode?: Mode
 
@@ -111,7 +101,11 @@ function LessonModal({
   const [notes, setNotes] =
     useState(lesson.notes)
 
-    
+    const [repeatWeekly, setRepeatWeekly] =
+  useState(false)
+
+const [repeatWeeks, setRepeatWeeks] =
+  useState(1)
 
   const [
     selectedStudents,
@@ -235,8 +229,10 @@ function LessonModal({
       isCreating
       ? false
       : true,
-    })
 
+       repeatWeekly,
+  repeatWeeks,
+    })
 
 
   const saveLesson = () => {
@@ -610,7 +606,54 @@ function LessonModal({
 
           </div>
 
+{/* Recurrence */}
 
+{isCreating && (
+  <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+
+    <label className="flex items-center gap-3 text-sm text-zinc-300">
+
+      <input
+        type="checkbox"
+        checked={repeatWeekly}
+        onChange={e =>
+          setRepeatWeekly(
+            e.target.checked,
+          )
+        }
+        className="h-4 w-4 accent-orange-500"
+      />
+
+      Repeat weekly
+
+    </label>
+
+
+    {repeatWeekly && (
+      <div className="mt-3">
+
+        <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+          Number of weeks
+        </label>
+
+        <input
+          type="number"
+          min={1}
+          max={52}
+          value={repeatWeeks}
+          onChange={e =>
+            setRepeatWeeks(
+              Number(e.target.value),
+            )
+          }
+          className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-orange-500"
+        />
+
+      </div>
+    )}
+
+  </div>
+)}
           {/* Student search */}
 
           <div>

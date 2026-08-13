@@ -9,22 +9,25 @@ import {
   getLessons,
   deleteLesson,
   createLesson,
+  createRecurringLessons,
   updateLesson} from './lib/lessons'
 
 import {
   getStudents,
   } from './lib/students'
 
+  import type { LessonChanges } from './types/lessonChanges'
 
 import type {
   Lesson,
   LessonDuration,
   Student,
-} from './data/mockData'
+} from './types'
 
 import Calendar from './pages/Calendar'
 import Students from './pages/Students'
 import Reports from './pages/Reports'
+
 
 
 type Page =
@@ -32,19 +35,7 @@ type Page =
   | 'students'
   | 'reports'
 
-type LessonChanges = {
-  title: string
-  date: string
-  startTime: string
-  plannedDuration: LessonDuration
-  actualDurationMinutes: LessonDuration | null
-  students: {
-    studentId: string
-    attended: boolean
-  }[]
-  notes: string
-  completed: boolean
-}
+
 
 function timeToMinutes(
   time: string,
@@ -174,22 +165,60 @@ const reloadStudents = async () => {
 const handleDeleteLesson = async (
   lessonId: string,
 ) => {
-  const success =
-    await deleteLesson(
-      lessonId,
+
+  const lesson =
+    lessons.find(
+      item =>
+        item.id === lessonId,
     )
 
-  if (!success) {
+  if (!lesson) {
     return
   }
 
-const refreshedLessons =
-  await getLessons()
 
-setLessons(
-  refreshedLessons,
-)
-} 
+  let deleteFollowing = false
+
+
+  if (lesson.recurrenceId) {
+
+    const choice =
+      window.confirm(
+        'This is a recurring lesson.\n\nOK = delete this and all following lessons\nCancel = delete only this lesson'
+      )
+
+    deleteFollowing = choice
+
+  }
+
+
+  const success =
+    await deleteLesson(
+      lessonId,
+      deleteFollowing
+        ? lesson.recurrenceId
+        : null,
+  )
+
+
+  if (!success) {
+    window.alert(
+      'Failed to delete lesson',
+    )
+
+    return
+  }
+
+
+  const refreshedLessons =
+    await getLessons()
+
+
+  setLessons(
+    refreshedLessons,
+  )
+}
+
   const handleSaveLesson = async(
     lessonId: string,
     changes: LessonChanges,
@@ -296,13 +325,37 @@ setLessons(
       return
     }
 
-    const createdLesson =
-  await createLesson(
-    changes,
-  )
+  let createdLesson
 
 
-if (!createdLesson) {
+if (
+  changes.repeatWeekly
+) {
+
+ const recurrenceId =
+    crypto.randomUUID()
+
+  createdLesson =
+    await createRecurringLessons(
+      {...changes,
+       recurrenceId,
+      },
+      changes.repeatWeeks,
+    )
+
+} else {
+
+  createdLesson =
+    await createLesson(
+      changes,
+    )
+
+}
+
+
+if ( !createdLesson ||
+  createdLesson.length === 0
+) { 
   window.alert(
     'Failed to create lesson'
   )

@@ -39,6 +39,8 @@ export async function getLessons(): Promise<Lesson[]> {
       plannedDuration: lesson.planned_duration,
       actualDurationMinutes:
         lesson.actual_duration_minutes,
+        recurrenceId:
+  lesson.recurrence_id,
 
       students:
         (lesson.lesson_students ?? []).map(
@@ -71,6 +73,7 @@ export async function createLesson(
     actualDurationMinutes: number | null
     notes: string
     completed: boolean
+    recurrenceId?: string | null
     students: {
       studentId: string
       attended: boolean
@@ -106,6 +109,7 @@ export async function createLesson(
 
         completed:
           lesson.completed,
+          recurrence_id: lesson.recurrenceId,
       })
       .select()
       .single()
@@ -270,7 +274,35 @@ export async function updateLesson(
 
 export async function deleteLesson(
   id: string,
+  recurrenceId?: string | null,
 ) {
+
+  if (recurrenceId) {
+
+    const {
+      error,
+    } = await supabase
+      .from('lessons')
+      .delete()
+      .eq(
+        'recurrence_id',
+        recurrenceId,
+      )
+
+
+    if (error) {
+      console.error(
+        'Error deleting recurring lessons:',
+        error,
+      )
+
+      return false
+    }
+
+
+    return true
+  }
+
 
   const {
     error,
@@ -294,4 +326,83 @@ export async function deleteLesson(
 
 
   return true
+}
+
+
+
+export async function deleteRecurringLessonsFromDate(
+  recurrenceId: string,
+  fromDate: string,
+) {
+  const { error } =
+    await supabase
+      .from('lessons')
+      .delete()
+      .eq(
+        'recurrence_id',
+        recurrenceId,
+      )
+      .gte(
+        'date',
+        fromDate,
+      )
+
+  if (error) {
+    console.error(
+      error,
+    )
+
+    return false
+  }
+
+  return true
+}
+
+export async function createRecurringLessons(
+  lesson: {
+    title: string
+    date: string
+    startTime: string
+    plannedDuration: number
+    actualDurationMinutes: number | null
+    notes: string
+    completed: boolean
+        recurrenceId?: string | null
+    students: {
+      studentId: string
+      attended: boolean
+    }[]
+  },
+  weeks: number,
+) {
+  const created = []
+
+  for (let i = 0; i < weeks; i++) {
+
+    const date = new Date(
+      lesson.date,
+    )
+
+    date.setDate(
+      date.getDate() + i * 7,
+    )
+
+
+    const result =
+      await createLesson({
+        ...lesson,
+        date:
+          date
+            .toISOString()
+            .split('T')[0],
+      })
+
+
+    if (result) {
+      created.push(result)
+    }
+  }
+
+
+  return created
 }

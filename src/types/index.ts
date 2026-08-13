@@ -29,6 +29,7 @@ export type Lesson = {
   students: LessonStudent[]
   completed: boolean
   notes: string
+  recurrenceId?: string | null
 }
 
 

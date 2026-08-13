@@ -416,6 +416,7 @@ setLessons(
         {page === 'calendar' && (
           <Calendar
             lessons={lessons}
+            students={students}
             onSaveLesson={
               handleSaveLesson
             }
@@ -439,6 +440,7 @@ setLessons(
         {page === 'reports' && (
   <Reports
     lessons={lessons}
+    students={students}
   />
 )}
 

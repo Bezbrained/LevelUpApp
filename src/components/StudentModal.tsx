@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Student } from '../data/mockData'
+import type { Student } from '../types'
 
 
 type StudentChanges = {

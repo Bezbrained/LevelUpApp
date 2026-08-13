@@ -5,17 +5,18 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
-import {
-  students,
-} from '../data/mockData'
+import type {
+  Student,
+} from '../types'
 
 import type {
   Lesson,
-} from '../data/mockData'
+} from '../types'
 
 
 type ReportsProps = {
   lessons: Lesson[]
+  students: Student[]
 }
 
 
@@ -143,6 +144,7 @@ function getLessonType(
 
 function Reports({
   lessons,
+  students,
 }: ReportsProps) {
   const [weekStart, setWeekStart] =
     useState(

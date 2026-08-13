@@ -1,7 +1,7 @@
 import type {
   Lesson,
   LessonDuration,
-} from '../data/mockData'
+} from '../types'
 
 
 export const defaultSalaryRates = {

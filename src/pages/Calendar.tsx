@@ -7,8 +7,9 @@ import {
 
 import type {
   Lesson,
+  Student,
   LessonDuration,
-} from '../data/mockData'
+} from '../types'
 
 import LessonModal from '../components/LessonModal'
 
@@ -28,6 +29,7 @@ type LessonChanges = {
 
 type CalendarProps = {
   lessons: Lesson[]
+  students: Student[]
 
   onSaveLesson: (
     lessonId: string,
@@ -174,6 +176,7 @@ function getRoundedCurrentTime() {
 
 function Calendar({
   lessons,
+  students,
   onSaveLesson,
   onCreateLesson,
 }: CalendarProps) {
@@ -587,6 +590,7 @@ function Calendar({
           lesson={
             selectedLesson
           }
+          students={students}
           onSave={
             onSaveLesson
           }
@@ -622,6 +626,7 @@ function Calendar({
           }}
           initialMode="edit"
           isCreating
+          students={students}
           onSave={
             onSaveLesson
           }

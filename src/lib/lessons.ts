@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Lesson } from '../data/mockData'
+import type { Lesson } from '../types'
 
 
 export async function getLessons(): Promise<Lesson[]> {

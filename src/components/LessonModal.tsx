@@ -6,14 +6,14 @@ import {
   X,
 } from 'lucide-react'
 
-import {
-  students,
-} from '../data/mockData'
+import type {
+  Student,
+} from '../types'
 
 import type {
   Lesson,
   LessonDuration,
-} from '../data/mockData'
+} from '../types'
 
 type LessonChanges = {
   title: string
@@ -31,7 +31,7 @@ type LessonChanges = {
 
 type LessonModalProps = {
   lesson: Lesson
-
+  students:Student[]
   onSave: (
     lessonId: string,
     changes: LessonChanges,
@@ -78,6 +78,7 @@ function getLessonType(
 
 function LessonModal({
   lesson,
+  students,
   onSave,
   onCreate,
   onClose,
@@ -105,6 +106,8 @@ function LessonModal({
 
   const [notes, setNotes] =
     useState(lesson.notes)
+
+    
 
   const [
     selectedStudents,
@@ -225,10 +228,12 @@ function LessonModal({
         selectedStudents,
       notes,
       completed:
-        isCreating
-          ? false
-          : lesson.completed,
+      isCreating
+      ? false
+      : true,
     })
+
+
 
   const saveLesson = () => {
     if (!title.trim()) {
@@ -600,6 +605,7 @@ function LessonModal({
             </select>
 
           </div>
+
 
           {/* Student search */}
 

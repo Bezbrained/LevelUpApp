@@ -13,7 +13,7 @@ import type {
   Lesson,
   LessonDuration,
   Student,
-} from '../data/mockData'
+} from '../types'
 
 import {
   createStudent,
@@ -22,7 +22,7 @@ import {
 
 import {
   academicHoursFromMinutes,
-} from '../data/mockData'
+} from '../types'
 
 import LessonModal from '../components/LessonModal'
 import StudentModal from '../components/StudentModal'
@@ -175,6 +175,9 @@ function Students({
   const [search, setSearch] =
     useState('')
 
+    const [showAllStudents, setShowAllStudents] =
+  useState(false)
+
     
 
   const [selectedStudent, setSelectedStudent] =
@@ -209,11 +212,11 @@ const handleSaveStudent = async (
   },
 ) => {
 
-  if (selectedStudent) {
+  if (editingStudent) {
 
     const success =
       await updateStudent(
-        selectedStudent.id,
+        editingStudent.id,
         changes,
       )
 
@@ -235,7 +238,14 @@ const handleSaveStudent = async (
   }
 
 
-  await onStudentsChanged()
+ await onStudentsChanged()
+
+if (editingStudent) {
+  setSelectedStudent({
+    ...editingStudent,
+    ...changes,
+  })
+}
 
 
   setShowStudentModal(false)
@@ -316,30 +326,38 @@ const handleSaveStudent = async (
     currentMonth,
   ])
 
-  const filteredStudents =
-    useMemo(() => {
-      const query =
-        search.trim().toLowerCase()
+ const filteredStudents =
+  useMemo(() => {
+    const query =
+      search.trim().toLowerCase()
 
-      if (query) {
-        return students.filter(
-          student =>
-            student.name
-              .toLowerCase()
-              .includes(query),
-        )
-      }
+    let result = showAllStudents
+      ? students
+      : query
+        ? students
+        : students.filter(
+            student =>
+              monthStudentIds.has(
+                student.id,
+              ),
+          )
 
-      return students.filter(
+    if (query) {
+      result = result.filter(
         student =>
-          monthStudentIds.has(
-            student.id,
-          ),
+          student.name
+            .toLowerCase()
+            .includes(query),
       )
-    }, [
-      search,
-      monthStudentIds,
-    ])
+    }
+
+    return result
+  }, [
+    search,
+    showAllStudents,
+    students,
+    monthStudentIds,
+  ])
 
   const studentLessons =
     selectedStudent
@@ -568,16 +586,35 @@ const handleSaveStudent = async (
             <p className="mt-1 text-sm text-zinc-500">
               Students with lessons in the selected month
             </p>
-            <button
-  onClick={() => {
-    setEditingStudent(null)
-    setShowStudentModal(true)
-  }}
-  className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white"
->
-  + New Student
-</button>
-          </div>
+
+            
+      <div className="mt-4 flex gap-2">
+
+  <button
+    onClick={() =>
+      setShowAllStudents(
+        current => !current,
+      )
+    }
+    className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800"
+  >
+    {showAllStudents
+      ? 'Show Monthly Students'
+      : 'Show All Students'}
+  </button>
+
+
+  <button
+    onClick={() => {
+      setEditingStudent(null)
+      setShowStudentModal(true)
+    }}
+    className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white"
+  >
+    + New Student
+  </button>
+</div>
+</div>
 
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
@@ -672,9 +709,26 @@ const handleSaveStudent = async (
                   : 'No students have lessons this month.'}
               </div>
             )}
+
+{showStudentModal && !editingStudent && (
+  <StudentModal
+    student={null}
+    onSave={handleSaveStudent}
+    onClose={() => {
+      setShowStudentModal(false)
+      setEditingStudent(null)
+    }}
+  />
+)}
           </div>
         </div>
+        
+
+      
+      
+
       </div>
+      
     )
   }
 
@@ -730,19 +784,16 @@ const handleSaveStudent = async (
             
               </div>
 
-              <button
-                title="Edit student"
-                onClick={() =>
-                  alert(
-                    'Student editing will be added later.',
-                  )
-                }
-                className="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-800 hover:text-white"
-              >
-                <Pencil
-                  size={17}
-                />
-              </button>
+             <button
+  title="Edit student"
+  onClick={() => {
+    setEditingStudent(selectedStudent)
+    setShowStudentModal(true)
+  }}
+  className="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-800 hover:text-white"
+>
+  <Pencil size={17} />
+</button>
             </div>
 
             {showStudentInfo && (
@@ -1173,6 +1224,7 @@ const handleSaveStudent = async (
         {selectedLesson && (
           <LessonModal
             lesson={selectedLesson}
+            students={students}
             onSave={onSaveLesson}
             onCreate={() => {}}
             onClose={() =>
@@ -1181,17 +1233,21 @@ const handleSaveStudent = async (
           />
         )}
       </div>
-      {showStudentModal && (
+
+{showStudentModal && editingStudent && (
   <StudentModal
     student={editingStudent}
     onSave={handleSaveStudent}
     onClose={() => {
       setShowStudentModal(false)
-      setSelectedStudent(null)
+      setEditingStudent(null)
     }}
   />
 )}
+    
     </div>
+
+    
   )
 }
 

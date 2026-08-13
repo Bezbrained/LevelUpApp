@@ -267,3 +267,31 @@ export async function updateLesson(
 
   return true
 }
+
+export async function deleteLesson(
+  id: string,
+) {
+
+  const {
+    error,
+  } = await supabase
+    .from('lessons')
+    .delete()
+    .eq(
+      'id',
+      id,
+    )
+
+
+  if (error) {
+    console.error(
+      'Error deleting lesson:',
+      error,
+    )
+
+    return false
+  }
+
+
+  return true
+}

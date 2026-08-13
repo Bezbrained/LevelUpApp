@@ -32,6 +32,7 @@ type LessonChanges = {
 type LessonModalProps = {
   lesson: Lesson
   students:Student[]
+
   onSave: (
     lessonId: string,
     changes: LessonChanges,
@@ -42,6 +43,8 @@ type LessonModalProps = {
   ) => void
 
   onClose: () => void
+
+  onDelete?: () => void
 
   initialMode?: Mode
 
@@ -80,6 +83,7 @@ function LessonModal({
   lesson,
   students,
   onSave,
+  onDelete,
   onCreate,
   onClose,
   initialMode = 'info',
@@ -725,32 +729,52 @@ function LessonModal({
 
           {/* Footer */}
 
-          <div className="flex justify-end gap-3">
+<div className="flex justify-between">
 
-            <button
-              onClick={onClose}
-              className="rounded-lg border border-zinc-800 px-4 py-2.5 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
-            >
-              Cancel
-            </button>
+  {!isCreating && onDelete && (
+    <button
+      onClick={() => {
+        const confirmed =
+          window.confirm(
+            'Delete this lesson permanently?',
+          )
 
-            <button
-              onClick={
-                isCreating
-                  ? saveLesson
-                  : saveChanges
-              }
-              disabled={
-                !title.trim()
-              }
-              className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {isCreating
-                ? 'Add lesson'
-                : 'Save changes'}
-            </button>
+        if (confirmed) {
+          onDelete()
+        }
+      }}
+      className="rounded-lg px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
+    >
+      Delete lesson
+    </button>
+  )}
 
-          </div>
+  <div className="flex gap-3">
+
+    <button
+      onClick={onClose}
+      className="rounded-lg border border-zinc-800 px-4 py-2.5 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+    >
+      Cancel
+    </button>
+
+    <button
+      onClick={
+        isCreating
+          ? saveLesson
+          : saveChanges
+      }
+      disabled={!title.trim()}
+      className="rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {isCreating
+        ? 'Add lesson'
+        : 'Save changes'}
+    </button>
+
+  </div>
+
+</div>
 
         </div>
 

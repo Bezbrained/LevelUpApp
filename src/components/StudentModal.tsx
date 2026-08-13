@@ -20,6 +20,8 @@ type StudentModalProps = {
     changes: StudentChanges,
   ) => void
 
+  onDelete?: () => void
+
   onClose: () => void
 }
 
@@ -27,6 +29,7 @@ type StudentModalProps = {
 function StudentModal({
   student,
   onSave,
+  onDelete,
   onClose,
 }: StudentModalProps) {
 
@@ -175,26 +178,48 @@ function StudentModal({
         </div>
 
 
-        <div className="mt-6 flex justify-end gap-3">
+       <div className="mt-6 flex justify-between">
 
-          <button
-            onClick={onClose}
-            className="rounded-lg px-4 py-2 text-zinc-400 hover:bg-zinc-800"
-          >
-            Cancel
-          </button>
+  {student && onDelete && (
+    <button
+      onClick={() => {
+        const confirmed =
+          window.confirm(
+            'Delete this student permanently?',
+          )
+
+        if (confirmed) {
+          onDelete()
+        }
+      }}
+      className="rounded-lg px-4 py-2 text-red-400 hover:bg-red-500/10"
+    >
+      Delete
+    </button>
+  )}
 
 
-          <button
-            onClick={handleSubmit}
-            className="rounded-lg bg-orange-500 px-4 py-2 font-medium text-white"
-          >
-            Save
-          </button>
+  <div className="flex gap-3">
 
-        </div>
+    <button
+      onClick={onClose}
+      className="rounded-lg px-4 py-2 text-zinc-400 hover:bg-zinc-800"
+    >
+      Cancel
+    </button>
 
-      </div>
+
+    <button
+      onClick={handleSubmit}
+      className="rounded-lg bg-orange-500 px-4 py-2 font-medium text-white"
+    >
+      Save
+    </button>
+
+  </div>
+
+</div>
+</div>
 
     </div>
   )

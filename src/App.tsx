@@ -7,6 +7,7 @@ import {
 
 import {
   getLessons,
+  deleteLesson,
   createLesson,
   updateLesson} from './lib/lessons'
 
@@ -170,7 +171,25 @@ const reloadStudents = async () => {
   setStudents(data)
 }
 
+const handleDeleteLesson = async (
+  lessonId: string,
+) => {
+  const success =
+    await deleteLesson(
+      lessonId,
+    )
 
+  if (!success) {
+    return
+  }
+
+const refreshedLessons =
+  await getLessons()
+
+setLessons(
+  refreshedLessons,
+)
+} 
   const handleSaveLesson = async(
     lessonId: string,
     changes: LessonChanges,
@@ -420,6 +439,7 @@ setLessons(
             onSaveLesson={
               handleSaveLesson
             }
+            onDeleteLesson={handleDeleteLesson}
             onCreateLesson={
               handleCreateLesson
             }
@@ -433,6 +453,7 @@ setLessons(
             onSaveLesson={
               handleSaveLesson
             }
+            onDeleteLesson={handleDeleteLesson}
             onStudentsChanged={reloadStudents}
           />
         )}

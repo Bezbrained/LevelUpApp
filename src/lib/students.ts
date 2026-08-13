@@ -128,3 +128,32 @@ export async function updateStudent(
 
   return true
 }
+
+export async function deleteStudent(
+  id: string,
+) {
+
+  const {
+    error,
+  } = await supabase
+    .from('students')
+    .delete()
+    .eq(
+      'id',
+      id,
+    )
+
+
+  if (error) {
+
+    console.error(
+      'Error deleting student:',
+      error,
+    )
+
+    return false
+  }
+
+
+  return true
+}

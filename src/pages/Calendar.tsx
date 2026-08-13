@@ -36,6 +36,10 @@ type CalendarProps = {
     changes: LessonChanges,
   ) => void
 
+  onDeleteLesson: (
+    lessonId: string,
+  ) => void
+
   onCreateLesson: (
     changes: LessonChanges,
   ) => void
@@ -178,6 +182,7 @@ function Calendar({
   lessons,
   students,
   onSaveLesson,
+  onDeleteLesson,
   onCreateLesson,
 }: CalendarProps) {
   const now = new Date()
@@ -597,6 +602,13 @@ function Calendar({
           onCreate={
             onCreateLesson
           }
+            onDelete={() => {
+    onDeleteLesson(
+      selectedLesson.id,
+    )
+
+    setSelectedLesson(null)
+  }}
           onClose={() =>
             setSelectedLesson(
               null,

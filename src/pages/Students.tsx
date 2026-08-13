@@ -18,6 +18,7 @@ import type {
 import {
   createStudent,
   updateStudent,
+  deleteStudent,
 } from '../lib/students'
 
 import {
@@ -31,6 +32,11 @@ type StudentsProps = {
   lessons: Lesson[]
   students: Student[]
   onStudentsChanged: () => Promise<void>
+
+    onDeleteLesson: (
+    lessonId: string,
+  ) => void
+
   onSaveLesson: (
     lessonId: string,
     changes: {
@@ -171,6 +177,7 @@ function Students({
   students,
   onStudentsChanged,
   onSaveLesson,
+  onDeleteLesson,
 }: StudentsProps) {
   const [search, setSearch] =
     useState('')
@@ -199,6 +206,36 @@ function Students({
         1,
       )
     })
+
+const handleDeleteStudent = async () => {
+
+  if (!editingStudent) {
+    return
+  }
+
+
+  const success =
+    await deleteStudent(
+      editingStudent.id,
+    )
+
+
+  if (!success) {
+    window.alert(
+      'Failed to delete student',
+    )
+
+    return
+  }
+
+
+  await onStudentsChanged()
+
+
+  setShowStudentModal(false)
+  setEditingStudent(null)
+  setSelectedStudent(null)
+}
 
 const handleSaveStudent = async (
   changes: {
@@ -1221,23 +1258,32 @@ if (editingStudent) {
           </div>
         </section>
 
-        {selectedLesson && (
-          <LessonModal
-            lesson={selectedLesson}
-            students={students}
-            onSave={onSaveLesson}
-            onCreate={() => {}}
-            onClose={() =>
-              setSelectedLesson(null)
-            }
-          />
-        )}
-      </div>
+   {selectedLesson && (
+  <LessonModal
+    lesson={selectedLesson}
+    students={students}
+    onSave={onSaveLesson}
+    onCreate={() => {}}
+
+    onDelete={() => {
+      onDeleteLesson(
+        selectedLesson.id,
+      )
+
+      setSelectedLesson(null)
+    }}
+
+    onClose={() =>
+      setSelectedLesson(null)
+    }
+  />
+)}
 
 {showStudentModal && editingStudent && (
   <StudentModal
     student={editingStudent}
     onSave={handleSaveStudent}
+    onDelete={handleDeleteStudent}
     onClose={() => {
       setShowStudentModal(false)
       setEditingStudent(null)
@@ -1246,12 +1292,9 @@ if (editingStudent) {
 )}
     
     </div>
-
+</div> 
     
   )
 }
 
 export default Students
-
-//ustal
-//poshel spat

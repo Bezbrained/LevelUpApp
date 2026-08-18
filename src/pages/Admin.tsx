@@ -5,12 +5,20 @@ import {
 
 import type { Teacher } from '../types'
 
+
 import {
   getTeachers,
   updateTeacherRates,
 } from '../lib/teachers'
 
-export default function Admin() {
+
+type AdminProps = {
+  onLogout: () => void
+}
+
+export default function Admin({
+  onLogout,
+}: AdminProps) {
 
   const [
     teachers,
@@ -199,6 +207,18 @@ export default function Admin() {
 
       </div>
 
+<button
+  type="button"
+  onClick={onLogout}
+  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+>
+  Log out
+</button>
+
     </div>
+
+    
   )
+  
 }
+

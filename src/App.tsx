@@ -489,7 +489,9 @@ setLessons(
 
   if (isAdmin) {
   return (
-    <Admin />
+  <Admin
+  onLogout={handleLogout}
+/>
   )
 }
 

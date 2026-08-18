@@ -19,6 +19,7 @@ import type { LessonChanges } from '../types/lessonChanges'
 
 type LessonModalProps = {
   lesson: Lesson
+  previousLessonNotes?: string | null
   students:Student[]
 
   onSave: (
@@ -72,6 +73,7 @@ function getLessonType(
 function LessonModal({
   lesson,
   students,
+   previousLessonNotes,
   onSave,
   onDelete,
   onCreate,
@@ -419,6 +421,18 @@ const [repeatWeeks, setRepeatWeeks] =
               </span>
 
             </div>
+            
+{previousLessonNotes && (
+    <div>
+        <label className="mb-2 block text-xs font-medium text-zinc-400">
+              Previous lesson notes
+                  </label>
+
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-300 whitespace-pre-wrap">
+                            {previousLessonNotes}
+                                </div>
+                                  </div>
+                                  )}
 
             {/* Notes */}
 

@@ -168,6 +168,56 @@ function getRoundedCurrentTime() {
   )}`
 }
 
+function getPreviousLesson(
+  lessons: Lesson[],
+  currentLesson: Lesson,
+) {
+  const currentStudentIds =
+    currentLesson.students
+      .map(student => student.studentId)
+      .sort()
+
+  return lessons
+    .filter(lesson => {
+      if (lesson.id === currentLesson.id) {
+        return false
+      }
+
+      const lessonDateTime =
+        `${lesson.date}T${lesson.startTime}`
+
+      const currentDateTime =
+        `${currentLesson.date}T${currentLesson.startTime}`
+
+      if (lessonDateTime >= currentDateTime) {
+        return false
+      }
+
+      const studentIds =
+        lesson.students
+          .map(student => student.studentId)
+          .sort()
+
+      return (
+        studentIds.length ===
+          currentStudentIds.length &&
+        studentIds.every(
+          (id, index) =>
+            id === currentStudentIds[index],
+        )
+      )
+    })
+    .sort((a, b) => {
+      const aDate =
+        `${a.date}T${a.startTime}`
+
+      const bDate =
+        `${b.date}T${b.startTime}`
+
+      return bDate.localeCompare(aDate)
+    })[0] ?? null
+}
+
 function Calendar({
   lessons,
   students,
@@ -202,6 +252,7 @@ function Calendar({
         60000,
       )
 
+     
     return () =>
       window.clearInterval(timer)
   }, [])
@@ -586,6 +637,12 @@ function Calendar({
             selectedLesson
           }
           students={students}
+          previousLessonNotes={
+  getPreviousLesson(
+    lessons,
+    selectedLesson,
+  )?.notes ?? null
+}
           onSave={
             onSaveLesson
           }

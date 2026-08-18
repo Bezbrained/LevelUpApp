@@ -3,13 +3,10 @@ import type { Lesson } from '../types'
 
 
 export async function getLessons(
-    teacherId: string = '',
+  teacherId?: string,
 ): Promise<Lesson[]> {
 
-  const {
-    data,
-    error,
-  } = await supabase
+  let query = supabase
     .from('lessons')
     .select(`
       *,
@@ -18,10 +15,18 @@ export async function getLessons(
         attended
       )
     `)
-    .eq(
-  'teacher_id',
-  teacherId,
-)
+
+  if (teacherId) {
+    query = query.eq(
+      'teacher_id',
+      teacherId,
+    )
+  }
+
+  const {
+    data,
+    error,
+  } = await query
     .order('date')
     .order('start_time')
 
@@ -42,13 +47,16 @@ export async function getLessons(
       title: lesson.title,
       date: lesson.date,
       startTime: lesson.start_time,
-      plannedDuration: lesson.planned_duration,
+      plannedDuration:
+        lesson.planned_duration,
       actualDurationMinutes:
         lesson.actual_duration_minutes,
-        recurrenceId:
-  lesson.recurrence_id,
-  teacherId:
-  lesson.teacher_id,
+
+      recurrenceId:
+        lesson.recurrence_id,
+
+      teacherId:
+        lesson.teacher_id,
 
       students:
         (lesson.lesson_students ?? []).map(
@@ -69,7 +77,6 @@ export async function getLessons(
     }),
   )
 }
-
 
 
 export async function createLesson(

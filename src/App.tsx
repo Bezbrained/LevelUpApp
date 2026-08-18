@@ -118,6 +118,10 @@ function App() {
   const [lessons, setLessons] =
     useState<Lesson[]>([])
 
+const [studentLessons, setStudentLessons] =
+  useState<Lesson[]>([])
+
+
     const [students, setStudents] =
   useState<Student[]>([])
 
@@ -173,12 +177,19 @@ useEffect(() => {
         currentTeacherId ?? undefined,
       )
 
+      const allLessonsData =
+  await getLessons()
+
     const studentsData =
       await getStudents()
 
     setLessons(
       lessonsData,
     )
+
+    setStudentLessons(
+  allLessonsData,
+)
 
     setStudents(
       studentsData,
@@ -644,7 +655,7 @@ if (!currentTeacherId || !currentTeacher) {
 
         {page === 'students' && (
           <Students
-            lessons={lessons}
+            lessons={studentLessons}
             students={students}
             onSaveLesson={
               handleSaveLesson

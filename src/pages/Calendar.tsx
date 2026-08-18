@@ -172,14 +172,20 @@ function getPreviousLesson(
   lessons: Lesson[],
   currentLesson: Lesson,
 ) {
-  const currentStudentIds =
-    currentLesson.students
-      .map(student => student.studentId)
-      .sort()
-
   return lessons
     .filter(lesson => {
       if (lesson.id === currentLesson.id) {
+        return false
+      }
+
+      if (!lesson.notes?.trim()) {
+        return false
+      }
+
+      if (
+        lesson.title !==
+        currentLesson.title
+      ) {
         return false
       }
 
@@ -189,22 +195,9 @@ function getPreviousLesson(
       const currentDateTime =
         `${currentLesson.date}T${currentLesson.startTime}`
 
-      if (lessonDateTime >= currentDateTime) {
-        return false
-      }
-
-      const studentIds =
-        lesson.students
-          .map(student => student.studentId)
-          .sort()
-
       return (
-        studentIds.length ===
-          currentStudentIds.length &&
-        studentIds.every(
-          (id, index) =>
-            id === currentStudentIds[index],
-        )
+        lessonDateTime <
+        currentDateTime
       )
     })
     .sort((a, b) => {

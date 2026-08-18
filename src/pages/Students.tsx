@@ -325,7 +325,7 @@ if (editingStudent) {
 
     const ids = new Set<string>()
 
-    teacherlessons.forEach(lesson => {
+    teacherLessons.forEach(lesson => {
       const lessonDate =
         new Date(
           `${lesson.date}T00:00:00`,
@@ -349,7 +349,7 @@ if (editingStudent) {
 
     return ids
   }, [
-    teacherlessons,
+    teacherLessons,
     currentMonth,
   ])
 

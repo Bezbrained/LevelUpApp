@@ -7,6 +7,7 @@ import {
 
 import type {
   Student,
+  Teacher,
 } from '../types'
 
 import type {
@@ -17,15 +18,7 @@ import type {
 type ReportsProps = {
   lessons: Lesson[]
   students: Student[]
-}
-
-
-const rates = {
-  1: 460,
-  2: 540,
-  3: 600,
-  4: 700,
-  5: 800,
+   teacher: Teacher
 }
 
 
@@ -95,6 +88,7 @@ function durationMultiplier(
 
 function getSalary(
   lesson: Lesson,
+   teacher: Teacher,
 ) {
   const attended =
     lesson.students.filter(
@@ -102,17 +96,23 @@ function getSalary(
         student.attended,
     ).length
 
-
   if (attended === 0) {
     return 0
   }
 
+  let rate: number
 
-  const rate =
-    rates[
-      attended as keyof typeof rates
-    ] ?? 0
-
+  if (attended === 1) {
+    rate = teacher.rate1Student
+  } else if (attended === 2) {
+    rate = teacher.rate2Students
+  } else if (attended === 3) {
+    rate = teacher.rate3Students
+  } else if (attended === 4) {
+    rate = teacher.rate4Students
+  } else {
+    rate = teacher.rate5PlusStudents
+  }
 
   return (
     rate *
@@ -121,7 +121,6 @@ function getSalary(
     )
   )
 }
-
 
 function getLessonType(
   lesson: Lesson,
@@ -145,6 +144,7 @@ function getLessonType(
 function Reports({
   lessons,
   students,
+  teacher,
 }: ReportsProps) {
   const [weekStart, setWeekStart] =
     useState(
@@ -209,6 +209,7 @@ function Reports({
         sum +
         getSalary(
           lesson,
+          teacher,
         ),
       0,
     )
@@ -342,7 +343,9 @@ function Reports({
                   ) =>
                     sum +
                     getSalary(
+
                       lesson,
+                      teacher,
                     ),
                   0,
                 )
@@ -436,7 +439,9 @@ function Reports({
 
                           const salary =
                             getSalary(
+                               
                               lesson,
+                              teacher,
                             )
 
 

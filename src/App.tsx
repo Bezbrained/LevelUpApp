@@ -708,6 +708,7 @@ if (!currentTeacherId || !currentTeacher) {
   <Reports
     lessons={lessons}
     students={students}
+      teacher={currentTeacher}
   />
 )}
 

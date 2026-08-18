@@ -4,14 +4,21 @@ import type {
 } from '../types'
 
 
-export const defaultSalaryRates = {
+export type SalaryRates = {
+  1: number
+  2: number
+  3: number
+  4: number
+  5: number
+}
+
+export const defaultSalaryRates: SalaryRates = {
   1: 460,
   2: 540,
   3: 600,
   4: 700,
   5: 800,
-} as const
-
+}
 
 
 export function getDurationMultiplier(
@@ -68,15 +75,19 @@ export function getLessonSalary(
    * can replace this.
    */
 
-  const baseRate =
-    salaryRates[
-      attendedCount as keyof typeof salaryRates
-    ]
+  let baseRate: number
 
-
-  if (!baseRate) {
-    return 0
-  }
+if (attendedCount === 1) {
+  baseRate = salaryRates[1]
+} else if (attendedCount === 2) {
+  baseRate = salaryRates[2]
+} else if (attendedCount === 3) {
+  baseRate = salaryRates[3]
+} else if (attendedCount === 4) {
+  baseRate = salaryRates[4]
+} else {
+  baseRate = salaryRates[5]
+}
 
 
   const multiplier =
@@ -194,4 +205,22 @@ export function getWeeklySalary(
         ),
       0,
     )
+}
+
+export function getTeacherSalaryRates(
+  teacher: {
+    rate1Student: number
+    rate2Students: number
+    rate3Students: number
+    rate4Students: number
+    rate5PlusStudents: number
+  },
+): SalaryRates {
+  return {
+    1: teacher.rate1Student,
+    2: teacher.rate2Students,
+    3: teacher.rate3Students,
+    4: teacher.rate4Students,
+    5: teacher.rate5PlusStudents,
+  }
 }

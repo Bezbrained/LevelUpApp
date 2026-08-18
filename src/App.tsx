@@ -538,11 +538,11 @@ if (!currentTeacherId || !currentTeacher) {
           <div>
 
             <div className="text-lg font-semibold tracking-tight text-white">
-              Test
+              LevelUp
             </div>
 
             <div className="mt-0.5 text-xs text-zinc-500">
-              Lesson management
+              test
             </div>
 
           </div>

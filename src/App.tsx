@@ -134,12 +134,14 @@ const [currentTeacherId, setCurrentTeacherId] =
     localStorage.getItem('currentTeacherId'),
   )
 
-const [isAdmin, setIsAdmin] =
-  useState<boolean>(
-    localStorage.getItem('currentUserId') !== null &&
-    localStorage.getItem('currentTeacherId') === null,
+const [currentUserId, setCurrentUserId] =
+  useState<string | null>(
+    localStorage.getItem('currentUserId'),
   )
 
+const isAdmin =
+  currentUserId !== null &&
+  currentTeacherId === null
 
    useEffect(() => {
 
@@ -247,10 +249,9 @@ const handleLogout = () => {
   )
 
   setCurrentTeacherId(null)
-
-  setIsAdmin(false)
-
+  setCurrentUserId(null)
   setLessons([])
+  setStudentLessons([])
 }
 
 const handleDeleteLesson = async (
@@ -513,23 +514,30 @@ if (!currentTeacherId || !currentTeacher) {
       key={user.id}
       onClick={() => {
 
-        if (user.role === 'teacher' && user.teacherId) {
+        if (
+  user.role === 'teacher' &&
+  user.teacherId
+) {
+  localStorage.setItem(
+    'currentTeacherId',
+    user.teacherId,
+  )
 
-          localStorage.setItem(
-            'currentTeacherId',
-            user.teacherId,
-          )
+  localStorage.setItem(
+    'currentUserId',
+    user.id,
+  )
 
-          setCurrentTeacherId(
-            user.teacherId,
-          )
+  setCurrentUserId(user.id)
 
-          setIsAdmin(false)
+  setCurrentTeacherId(
+    user.teacherId,
+  )
 
-          return
-        }
+  return
+}
 
-       if (user.role === 'admin') {
+    if (user.role === 'admin') {
   localStorage.setItem(
     'currentUserId',
     user.id,
@@ -539,7 +547,9 @@ if (!currentTeacherId || !currentTeacher) {
     'currentTeacherId',
   )
 
-  setIsAdmin(true)
+  setCurrentUserId(user.id)
+
+  setCurrentTeacherId(null)
 }
 
       }}

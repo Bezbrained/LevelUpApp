@@ -656,6 +656,7 @@ if (!currentTeacherId || !currentTeacher) {
         {page === 'students' && (
           <Students
             lessons={studentLessons}
+             teacherLessons={lessons}
             students={students}
             onSaveLesson={
               handleSaveLesson

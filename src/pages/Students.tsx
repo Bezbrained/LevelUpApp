@@ -29,6 +29,7 @@ import StudentModal from '../components/StudentModal'
 
 type StudentsProps = {
   lessons: Lesson[]
+  teacherLessons: Lesson[]
   students: Student[]
   onStudentsChanged: () => Promise<void>
 
@@ -163,6 +164,7 @@ function getLessonType(
 function Students({
   lessons,
   students,
+   teacherLessons,
   onStudentsChanged,
   onSaveLesson,
   onDeleteLesson,
@@ -323,7 +325,7 @@ if (editingStudent) {
 
     const ids = new Set<string>()
 
-    lessons.forEach(lesson => {
+    teacherlessons.forEach(lesson => {
       const lessonDate =
         new Date(
           `${lesson.date}T00:00:00`,
@@ -347,7 +349,7 @@ if (editingStudent) {
 
     return ids
   }, [
-    lessons,
+    teacherlessons,
     currentMonth,
   ])
 

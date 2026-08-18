@@ -36,6 +36,7 @@ import type {
 import Calendar from './pages/Calendar'
 import Students from './pages/Students'
 import Reports from './pages/Reports'
+import Admin from './pages/Admin'
 
 
 
@@ -132,6 +133,13 @@ const [currentTeacherId, setCurrentTeacherId] =
   useState<string | null>(
     localStorage.getItem('currentTeacherId'),
   )
+
+const [isAdmin, setIsAdmin] =
+  useState<boolean>(
+    localStorage.getItem('currentUserId') !== null &&
+    localStorage.getItem('currentTeacherId') === null,
+  )
+
 
    useEffect(() => {
 
@@ -230,7 +238,18 @@ const reloadStudents = async () => {
 }
 
 const handleLogout = () => {
+  localStorage.removeItem(
+    'currentTeacherId',
+  )
+
+  localStorage.removeItem(
+    'currentUserId',
+  )
+
   setCurrentTeacherId(null)
+
+  setIsAdmin(false)
+
   setLessons([])
 }
 
@@ -467,6 +486,11 @@ setLessons(
     },
   ]
 
+  if (isAdmin) {
+  return (
+    <Admin />
+  )
+}
 
 if (!currentTeacherId || !currentTeacher) {
   return (
@@ -500,19 +524,23 @@ if (!currentTeacherId || !currentTeacher) {
             user.teacherId,
           )
 
+          setIsAdmin(false)
+
           return
         }
 
-        if (user.role === 'admin') {
-          localStorage.setItem(
-            'currentUserId',
-            user.id,
-          )
+       if (user.role === 'admin') {
+  localStorage.setItem(
+    'currentUserId',
+    user.id,
+  )
 
-          localStorage.removeItem(
-            'currentTeacherId',
-          )
-        }
+  localStorage.removeItem(
+    'currentTeacherId',
+  )
+
+  setIsAdmin(true)
+}
 
       }}
       className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-left text-sm text-zinc-200 transition hover:border-orange-500 hover:bg-zinc-800"

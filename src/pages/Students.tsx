@@ -11,7 +11,6 @@ import type { LessonChanges } from '../types/lessonChanges'
 
 import type {
   Lesson,
-  LessonDuration,
   Student,
 } from '../types'
 
@@ -35,6 +34,7 @@ type StudentsProps = {
 
     onDeleteLesson: (
     lessonId: string,
+     mode: 'single' | 'following',
   ) => void
 
   onSaveLesson: (
@@ -1256,6 +1256,7 @@ if (editingStudent) {
     onDelete={() => {
       onDeleteLesson(
         selectedLesson.id,
+        'single',
       )
 
       setSelectedLesson(null)

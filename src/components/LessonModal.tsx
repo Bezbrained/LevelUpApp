@@ -226,9 +226,10 @@ const [repeatWeeks, setRepeatWeeks] =
         selectedStudents,
       notes,
       completed:
-      isCreating
-      ? false
-      : true,
+  selectedStudents.length > 0 &&
+  selectedStudents.some(
+    student => student.attended,
+  ),
 
        repeatWeekly,
   repeatWeeks,
@@ -774,23 +775,39 @@ const [repeatWeeks, setRepeatWeeks] =
 
 <div className="flex justify-between">
 
-  {!isCreating && onDelete && (
-    <button
-      onClick={() => {
-        const confirmed =
+ {!isCreating && onDelete && (
+  <button
+    onClick={() => {
+      if (lesson.recurrenceId) {
+        const deleteFollowing =
           window.confirm(
-            'Delete this lesson permanently?',
+            'Delete this lesson and all following recurring lessons?\n\n' +
+            'Click Cancel to delete only this lesson.',
           )
 
-        if (confirmed) {
-          onDelete()
-        }
-      }}
-      className="rounded-lg px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
-    >
-      Delete lesson
-    </button>
-  )}
+        onDelete(
+          deleteFollowing
+            ? 'following'
+            : 'single',
+        )
+
+        return
+      }
+
+      const confirmed =
+        window.confirm(
+          'Delete this lesson permanently?',
+        )
+
+      if (confirmed) {
+        onDelete('single')
+      }
+    }}
+    className="rounded-lg px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
+  >
+    Delete lesson
+  </button>
+)}
 
   <div className="flex gap-3">
 

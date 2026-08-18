@@ -1,45 +1,27 @@
-export type LessonDuration = 30 | 40 | 60
+export type {
+  Lesson,
+  LessonStudent,
+  LessonDuration,
+} from './lesson'
 
+export type {
+  LessonChanges,
+} from './lessonChanges'
 
-export type LessonStudent = {
-  studentId: string
-  attended: boolean
-}
+export type {
+  Student,
+} from './student'
 
+export type {
+  Teacher,
+} from './teacher'
 
-export type Student = {
-  id: string
-  name: string
-  school: string
-  grade: string
-  notes: string
-  age?: number
-  books?: string
-  contact?: string
-}
+export type {
+  User,
+  UserRole,
+} from './user'
 
-
-export type Lesson = {
-  id: string
-  title: string
-  date: string
-  startTime: string
-  plannedDuration: LessonDuration
-  actualDurationMinutes: LessonDuration | null
-  students: LessonStudent[]
-  completed: boolean
-  notes: string
-  recurrenceId?: string | null
-}
-
-
-export const academicHoursFromMinutes = (
-  minutes: LessonDuration,
-): number => {
-  if (minutes === 30) return 0.75
-  if (minutes === 40) return 1
-  return 1.5
-}
-
-
-export const salaryRatePerAcademicHour = 25
+export {
+  academicHoursFromMinutes,
+  salaryRatePerAcademicHour,
+} from './calculations'

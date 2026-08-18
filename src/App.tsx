@@ -9,8 +9,14 @@ import {
   getLessons,
   deleteLesson,
   createLesson,
+  deleteRecurringLessonsFromDate,
   createRecurringLessons,
   updateLesson} from './lib/lessons'
+
+import {
+  getUsers,
+  type AppUser,
+} from './lib/users'
 
 import {
   getStudents,
@@ -18,10 +24,13 @@ import {
 
   import type { LessonChanges } from './types/lessonChanges'
 
+  import { getTeachers } from './lib/teachers'
+
 import type {
   Lesson,
   LessonDuration,
   Student,
+  Teacher,
 } from './types'
 
 import Calendar from './pages/Calendar'
@@ -112,48 +121,95 @@ function App() {
     const [students, setStudents] =
   useState<Student[]>([])
 
-    useEffect(() => {
+  const [teachers, setTeachers] =
+  useState<Teacher[]>([])
 
-  async function loadData(){
+const [currentTeacherId, setCurrentTeacherId] =
+  useState<string | null>(
+    localStorage.getItem('currentTeacherId'),
+  )
+
+   useEffect(() => {
+
+  async function loadTeachers() {
+    const teachersData =
+      await getTeachers()
+
+    setTeachers(
+      teachersData,
+    )
+  }
+
+  loadTeachers()
+
+}, [])
+
+useEffect(() => {
+
+  async function loadUsers() {
+
+    const usersData =
+      await getUsers()
+
+    setUsers(usersData)
+  }
+
+  loadUsers()
+
+}, [])
+
+useEffect(() => {
+
+  if (!currentTeacherId) {
+    return
+  }
+
+  async function loadData() {
 
     console.log('loading data')
 
-
     const lessonsData =
-      await getLessons()
-
+      await getLessons(
+        currentTeacherId ?? undefined,
+      )
 
     const studentsData =
       await getStudents()
-
 
     setLessons(
       lessonsData,
     )
 
-
     setStudents(
       studentsData,
     )
-
 
     console.log(
       'lessons:',
       lessonsData,
     )
 
-
     console.log(
       'students:',
       studentsData,
     )
-
   }
-
 
   loadData()
 
-}, [])
+}, [currentTeacherId])
+
+const currentTeacher =
+  teachers.find(
+    teacher =>
+      teacher.id ===
+      currentTeacherId,
+  )
+
+  const [
+  users,
+  setUsers,
+] = useState<AppUser[]>([])
 
 const reloadStudents = async () => {
   const data =
@@ -162,44 +218,47 @@ const reloadStudents = async () => {
   setStudents(data)
 }
 
+const handleLogout = () => {
+  setCurrentTeacherId(null)
+  setLessons([])
+}
+
 const handleDeleteLesson = async (
   lessonId: string,
+  mode: 'single' | 'following',
 ) => {
 
   const lesson =
     lessons.find(
-      item =>
-        item.id === lessonId,
+      lesson =>
+        lesson.id === lessonId,
     )
 
   if (!lesson) {
     return
   }
 
+  let success = false
 
-  let deleteFollowing = false
+  if (
+    mode === 'following' &&
+    lesson.recurrenceId
+  ) {
 
-
-  if (lesson.recurrenceId) {
-
-    const choice =
-      window.confirm(
-        'This is a recurring lesson.\n\nOK = delete this and all following lessons\nCancel = delete only this lesson'
+    success =
+      await deleteRecurringLessonsFromDate(
+        lesson.recurrenceId,
+        lesson.date,
       )
 
-    deleteFollowing = choice
+  } else {
+
+    success =
+      await deleteLesson(
+        lessonId,
+      )
 
   }
-
-
-  const success =
-    await deleteLesson(
-      lessonId,
-      deleteFollowing
-        ? lesson.recurrenceId
-        : null,
-  )
-
 
   if (!success) {
     window.alert(
@@ -209,16 +268,17 @@ const handleDeleteLesson = async (
     return
   }
 
-
   const refreshedLessons =
-    await getLessons()
-
+    await getLessons(
+      currentTeacherId!,
+    )
 
   setLessons(
     refreshedLessons,
   )
 }
 
+  
   const handleSaveLesson = async(
     lessonId: string,
     changes: LessonChanges,
@@ -283,7 +343,7 @@ if (!success) {
 
 
 const refreshedLessons =
-  await getLessons()
+  await getLessons( currentTeacherId!)
 
 
 setLessons(
@@ -338,6 +398,8 @@ if (
   createdLesson =
     await createRecurringLessons(
       {...changes,
+         teacherId:
+        currentTeacherId!,
        recurrenceId,
       },
       changes.repeatWeeks,
@@ -346,9 +408,11 @@ if (
 } else {
 
   createdLesson =
-    await createLesson(
-      changes,
-    )
+    await createLesson({
+    ...changes,
+    teacherId:
+      currentTeacherId!,
+})
 
 }
 
@@ -364,7 +428,7 @@ if ( !createdLesson ||
 
 
 const refreshedLessons =
-  await getLessons()
+  await getLessons( currentTeacherId!)
 
 
 setLessons(
@@ -392,7 +456,51 @@ setLessons(
     },
   ]
 
+
+if (!currentTeacherId || !currentTeacher) {
   return (
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-zinc-100">
+      <div className="w-full max-w-md">
+
+        <h1 className="text-2xl font-semibold text-white">
+          Select teacher
+        </h1>
+
+        <p className="mt-2 text-sm text-zinc-500">
+          Choose your account to continue.
+        </p>
+
+        <div className="mt-6 space-y-2">
+
+          {teachers.map(teacher => (
+            <button
+              key={teacher.id}
+              onClick={() => {
+                localStorage.setItem(
+                  'currentTeacherId',
+                  teacher.id,
+                )
+
+                setCurrentTeacherId(
+                  teacher.id,
+                )
+              }}
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-left text-sm text-zinc-200 transition hover:border-orange-500 hover:bg-zinc-800"
+            >
+              {teacher.name}
+            </button>
+          ))}
+
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+  return (
+
+    
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
 
       <aside className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-zinc-800/80 bg-zinc-900">
@@ -474,8 +582,15 @@ setLessons(
             </div>
 
             <div className="mt-1 text-sm font-medium text-zinc-200">
-              Teacher
+              {currentTeacher.name}
             </div>
+
+            <button
+  onClick={handleLogout}
+  className="rounded-lg px-4 py-2 text-sm text-red-400 hover:bg-red-500/10"
+>
+  Logout
+</button>
 
           </div>
 

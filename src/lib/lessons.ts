@@ -2,7 +2,9 @@ import { supabase } from './supabase'
 import type { Lesson } from '../types'
 
 
-export async function getLessons(): Promise<Lesson[]> {
+export async function getLessons(
+    teacherId: string = '',
+): Promise<Lesson[]> {
 
   const {
     data,
@@ -16,6 +18,10 @@ export async function getLessons(): Promise<Lesson[]> {
         attended
       )
     `)
+    .eq(
+  'teacher_id',
+  teacherId,
+)
     .order('date')
     .order('start_time')
 
@@ -41,6 +47,8 @@ export async function getLessons(): Promise<Lesson[]> {
         lesson.actual_duration_minutes,
         recurrenceId:
   lesson.recurrence_id,
+  teacherId:
+  lesson.teacher_id,
 
       students:
         (lesson.lesson_students ?? []).map(
@@ -74,6 +82,7 @@ export async function createLesson(
     notes: string
     completed: boolean
     recurrenceId?: string | null
+    teacherId: string
     students: {
       studentId: string
       attended: boolean
@@ -107,8 +116,15 @@ export async function createLesson(
         notes:
           lesson.notes,
 
+          teacher_id:
+  lesson.teacherId,
+
         completed:
           lesson.completed,
+
+
+
+
           recurrence_id: lesson.recurrenceId,
       })
       .select()
@@ -366,6 +382,7 @@ export async function createRecurringLessons(
     plannedDuration: number
     actualDurationMinutes: number | null
     notes: string
+    teacherId: string
     completed: boolean
         recurrenceId?: string | null
     students: {

@@ -1,4 +1,7 @@
-import type { LessonDuration } from './index'
+import type {
+  LessonDuration,
+  LessonStudent,
+} from './lesson'
 
 export type LessonChanges = {
   title: string
@@ -6,16 +9,10 @@ export type LessonChanges = {
   startTime: string
   plannedDuration: LessonDuration
   actualDurationMinutes: LessonDuration | null
-
-  students: {
-    studentId: string
-    attended: boolean
-  }[]
-
+  students: LessonStudent[]
   notes: string
   completed: boolean
 
   repeatWeekly: boolean
   repeatWeeks: number
-  recurrenceId?: string | null
 }

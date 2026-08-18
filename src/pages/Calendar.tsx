@@ -10,7 +10,6 @@ import type { LessonChanges } from '../types/lessonChanges'
 import type {
   Lesson,
   Student,
-  LessonDuration,
 } from '../types'
 
 import LessonModal from '../components/LessonModal'
@@ -28,6 +27,7 @@ type CalendarProps = {
 
   onDeleteLesson: (
     lessonId: string,
+     mode: 'single' | 'following',
   ) => void
 
   onCreateLesson: (
@@ -595,6 +595,7 @@ function Calendar({
             onDelete={() => {
     onDeleteLesson(
       selectedLesson.id,
+      'single',
     )
 
     setSelectedLesson(null)

@@ -168,48 +168,7 @@ function getRoundedCurrentTime() {
   )}`
 }
 
-function getPreviousLesson(
-  lessons: Lesson[],
-  currentLesson: Lesson,
-) {
-  return lessons
-    .filter(lesson => {
-      if (lesson.id === currentLesson.id) {
-        return false
-      }
 
-      if (!lesson.notes?.trim()) {
-        return false
-      }
-
-      if (
-        lesson.title !==
-        currentLesson.title
-      ) {
-        return false
-      }
-
-      const lessonDateTime =
-        `${lesson.date}T${lesson.startTime}`
-
-      const currentDateTime =
-        `${currentLesson.date}T${currentLesson.startTime}`
-
-      return (
-        lessonDateTime <
-        currentDateTime
-      )
-    })
-    .sort((a, b) => {
-      const aDate =
-        `${a.date}T${a.startTime}`
-
-      const bDate =
-        `${b.date}T${b.startTime}`
-
-      return bDate.localeCompare(aDate)
-    })[0] ?? null
-}
 
 function Calendar({
   lessons,
@@ -630,11 +589,25 @@ function Calendar({
             selectedLesson
           }
           students={students}
-          previousLessonNotes={
-  getPreviousLesson(
-    lessons,
-    selectedLesson,
-  )?.notes ?? null
+    
+ 
+            previousLessonNotes={
+  lessons
+    .filter(
+      lesson =>
+        lesson.id !== selectedLesson.id &&
+        lesson.title.trim().toLowerCase() ===
+          selectedLesson.title.trim().toLowerCase() &&
+      lesson.notes?.trim() &&
+`${lesson.date}T${lesson.startTime}` <
+  `${selectedLesson.date}T${selectedLesson.startTime}`
+    )
+    .sort(
+      (a, b) =>
+        `${b.date}T${b.startTime}`.localeCompare(
+          `${a.date}T${a.startTime}`,
+        ),
+    )[0]?.notes ?? null
 }
           onSave={
             onSaveLesson

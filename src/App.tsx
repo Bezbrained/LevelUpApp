@@ -462,36 +462,64 @@ if (!currentTeacherId || !currentTeacher) {
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-zinc-100">
       <div className="w-full max-w-md">
 
-        <h1 className="text-2xl font-semibold text-white">
-          Select teacher
-        </h1>
+<h1 className="text-2xl font-semibold text-white">
+  Select account
+</h1>
 
-        <p className="mt-2 text-sm text-zinc-500">
-          Choose your account to continue.
-        </p>
+<p className="mt-2 text-sm text-zinc-500">
+  Choose your account to continue.
+</p>
 
-        <div className="mt-6 space-y-2">
+<div className="mt-6 space-y-2">
 
-          {teachers.map(teacher => (
-            <button
-              key={teacher.id}
-              onClick={() => {
-                localStorage.setItem(
-                  'currentTeacherId',
-                  teacher.id,
-                )
+  {users.map(user => (
 
-                setCurrentTeacherId(
-                  teacher.id,
-                )
-              }}
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-left text-sm text-zinc-200 transition hover:border-orange-500 hover:bg-zinc-800"
-            >
-              {teacher.name}
-            </button>
-          ))}
+    <button
+      key={user.id}
+      onClick={() => {
 
-        </div>
+        if (user.role === 'teacher' && user.teacherId) {
+
+          localStorage.setItem(
+            'currentTeacherId',
+            user.teacherId,
+          )
+
+          setCurrentTeacherId(
+            user.teacherId,
+          )
+
+          return
+        }
+
+        if (user.role === 'admin') {
+          localStorage.setItem(
+            'currentUserId',
+            user.id,
+          )
+
+          localStorage.removeItem(
+            'currentTeacherId',
+          )
+        }
+
+      }}
+      className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-left text-sm text-zinc-200 transition hover:border-orange-500 hover:bg-zinc-800"
+    >
+
+      {user.name}
+
+      {user.role === 'admin' && (
+        <span className="ml-2 text-xs text-zinc-500">
+          Admin
+        </span>
+      )}
+
+    </button>
+
+  ))}
+
+</div>
 
       </div>
     </div>

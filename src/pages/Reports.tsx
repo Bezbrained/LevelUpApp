@@ -23,9 +23,18 @@ type ReportsProps = {
 
 
 function formatDate(date: Date) {
-  return date.toISOString().split('T')[0]
-}
+  const year = date.getFullYear()
 
+  const month = String(
+    date.getMonth() + 1,
+  ).padStart(2, '0')
+
+  const day = String(
+    date.getDate(),
+  ).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
 
 function getWeekStart(date: Date) {
   const result = new Date(date)
@@ -140,6 +149,37 @@ function getLessonType(
   return 'Individual'
 }
 
+function getLessonColor(
+  lesson: Lesson,
+) {
+  const attended =
+    lesson.students.filter(
+      student =>
+        student.attended,
+    ).length
+
+  if (attended === 1) {
+    return 'border-green-500/30 bg-green-500/10'
+  }
+
+  if (attended === 2) {
+    return 'border-yellow-500/30 bg-yellow-500/10'
+  }
+
+  if (attended === 3) {
+    return 'border-purple-500/30 bg-purple-500/10'
+  }
+
+  if (attended === 4) {
+    return 'border-sky-400/30 bg-sky-400/10'
+  }
+
+  if (attended >= 5) {
+    return 'border-blue-500/30 bg-blue-500/10'
+  }
+
+  return 'border-zinc-800 bg-zinc-950'
+}
 
 function Reports({
   lessons,
@@ -179,24 +219,16 @@ function Reports({
 
 
   const weekLessons =
-    lessons.filter(
-      lesson => {
-        const date =
-          new Date(
-            lesson.date,
-          )
-
-        return (
-          date >= weekStart &&
-          date <=
-            addDays(
-              weekStart,
-              6,
-            ) &&
-          lesson.completed
-        )
-      },
-    )
+  lessons.filter(
+    lesson =>
+      lesson.date >=
+        formatDate(weekStart) &&
+      lesson.date <=
+        formatDate(
+          addDays(weekStart, 6),
+        ) &&
+      lesson.completed,
+  )
 
 
 
@@ -446,10 +478,12 @@ function Reports({
 
 
                           return (
-                            <div
-                              key={lesson.id}
-                              className="rounded-lg bg-zinc-950 p-4"
-                            >
+                          <div
+  key={lesson.id}
+  className={`rounded-lg border p-4 ${getLessonColor(
+    lesson,
+  )}`}
+>
 
                               <div className="flex justify-between">
 

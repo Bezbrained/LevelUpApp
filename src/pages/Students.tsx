@@ -791,7 +791,7 @@ if (editingStudent) {
           <div className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                ```tsx
+              
 <div>
   <button
     onClick={() =>
@@ -1149,7 +1149,7 @@ if (editingStudent) {
 
       
 
-    ```tsx
+    
 {/* Latest lesson note */}
 <section className="mt-8">
   <h2 className="text-lg font-semibold text-white">

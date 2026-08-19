@@ -590,18 +590,20 @@ function Calendar({
           }
           students={students}
     
- {previousLessonNotes && (
-  <div>
-    <label className="mb-2 block text-xs font-medium text-zinc-400">
-      Previous lesson notes
-    </label>
+ previousLessonNotes={
+  lessons
+    .filter(
+      lesson =>
+        lesson.id !== selectedLesson.id &&
+        lesson.title.trim().toLowerCase() ===
+          selectedLesson.title.trim().toLowerCase() &&
+        lesson.notes?.trim() &&
+        `${lesson.date}T${lesson.startTime}` <
+          `${selectedLesson.date}T${selectedLesson.startTime}`,
+    )
+    ...
+}
 
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-300 whitespace-pre-wrap">
-      {previousLessonNotes}
-    </div>
-  </div>
-)}
-           
           onSave={
             onSaveLesson
           }

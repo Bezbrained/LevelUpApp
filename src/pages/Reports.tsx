@@ -199,6 +199,8 @@ function Reports({
       Record<string, boolean>
     >({})
 
+    const [showEmptyDays, setShowEmptyDays] =
+  useState(false)
 
   const weekDays =
     useMemo(() => {
@@ -265,7 +267,12 @@ function Reports({
       },
     )
 
-
+const visibleDays =
+  lessonsByDay.filter(
+    day =>
+      showEmptyDays ||
+      day.lessons.length > 0,
+  )
 
   return (
     <div className="min-h-screen bg-zinc-950 p-8 text-zinc-100">
@@ -334,6 +341,20 @@ function Reports({
 
           </div>
 
+          <label className="flex items-center gap-2 text-xs text-zinc-400">
+  <input
+    type="checkbox"
+    checked={showEmptyDays}
+    onChange={e =>
+      setShowEmptyDays(
+        e.target.checked,
+      )
+    }
+    className="h-4 w-4 accent-orange-500"
+  />
+
+  Show empty days
+</label>
 
         </div>
 
@@ -359,7 +380,7 @@ function Reports({
         <div className="mt-6 space-y-3">
 
 
-          {lessonsByDay.map(
+          {visibleDays.map(
             ({
               date,
               day,

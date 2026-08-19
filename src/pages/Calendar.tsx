@@ -588,13 +588,33 @@ function Calendar({
           lesson={
             selectedLesson
           }
+
+          
           students={students}
-    
- 
-           previousLessonNotes="TEST PREVIOUS NOTES"
+
+previousLessonNotes={
+  lessons
+    .filter(
+      lesson =>
+        lesson.id !== selectedLesson.id &&
+        lesson.title.trim().toLowerCase() ===
+          selectedLesson.title.trim().toLowerCase() &&
+        lesson.notes?.trim() &&
+        `${lesson.date}T${lesson.startTime}` <
+          `${selectedLesson.date}T${selectedLesson.startTime}`,
+    )
+    .sort(
+      (a, b) =>
+        `${b.date}T${b.startTime}`.localeCompare(
+          `${a.date}T${a.startTime}`,
+        ),
+    )[0]?.notes ?? null
+}
+
           onSave={
             onSaveLesson
           }
+
           onCreate={
             onCreateLesson
           }

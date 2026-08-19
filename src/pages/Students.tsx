@@ -791,28 +791,39 @@ if (editingStudent) {
           <div className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <button
-                  onClick={() =>
-                    setShowStudentInfo(
-                      current =>
-                        !current,
-                    )
-                  }
-                  className="flex items-center gap-2 text-left"
-                >
-                  <h1 className="text-xl font-semibold text-white">
-                    {selectedStudent.name}
-                  </h1>
+                ```tsx
+<div>
+  <button
+    onClick={() =>
+      setShowStudentInfo(
+        current => !current,
+      )
+    }
+    className="flex items-center gap-2 text-left"
+  >
+    <h1 className="text-xl font-semibold text-white">
+      {selectedStudent.name}
+    </h1>
 
-                  <ChevronDown
-                    size={18}
-                    className={`text-zinc-500 transition ${
-                      showStudentInfo
-                        ? 'rotate-180'
-                        : ''
-                    }`}
-                  />
-                </button>
+    <ChevronDown
+      size={18}
+      className={`text-zinc-500 transition ${
+        showStudentInfo
+          ? 'rotate-180'
+          : ''
+      }`}
+    />
+  </button>
+
+  <div className="mt-1 text-sm text-zinc-500">
+    {selectedStudent.school ||
+      'No school'}
+    {selectedStudent.grade &&
+      ` · Grade ${selectedStudent.grade}`}
+  </div>
+</div>
+```
+
 
             
               </div>
@@ -1138,70 +1149,68 @@ if (editingStudent) {
 
       
 
-        {/* Notes history */}
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold text-white">
-            Lesson & Homework Notes
-          </h2>
+    ```tsx
+{/* Latest lesson note */}
+<section className="mt-8">
+  <h2 className="text-lg font-semibold text-white">
+    Latest lesson note
+  </h2>
 
-          <p className="mt-1 text-sm text-zinc-500">
-            History for{' '}
-            {selectedStudent.name}
-          </p>
+  <p className="mt-1 text-sm text-zinc-500">
+    Most recent completed lesson with notes
+  </p>
 
-          <div className="mt-4 space-y-2">
-            {completedLessons
-              .filter(
-                lesson =>
-                  lesson.notes.trim() !==
-                  '',
-              )
-              .slice()
-              .sort((a, b) =>
-                `${b.date} ${b.startTime}`.localeCompare(
-                  `${a.date} ${a.startTime}`,
-                ),
-              )
-              .map(lesson => (
-                <button
-                  key={lesson.id}
-                  onClick={() =>
-                    setSelectedLesson(
-                      lesson,
-                    )
-                  }
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-left transition hover:border-zinc-700 hover:bg-zinc-800"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="text-sm font-medium text-zinc-200">
-                      {lesson.title}
-                    </div>
+  {(() => {
+    const latestNoteLesson = completedLessons
+      .filter(
+        lesson =>
+          lesson.notes.trim() !== '',
+      )
+      .slice()
+      .sort((a, b) =>
+        `${b.date} ${b.startTime}`.localeCompare(
+          `${a.date} ${a.startTime}`,
+        ),
+      )[0]
 
-                    <div className="shrink-0 text-xs text-zinc-600">
-                      {lesson.date}{' '}
-                      ·{' '}
-                      {lesson.startTime}
-                    </div>
-                  </div>
+    if (!latestNoteLesson) {
+      return (
+        <div className="mt-4 rounded-xl border border-dashed border-zinc-800 px-5 py-8 text-center text-sm text-zinc-600">
+          No lesson notes yet.
+        </div>
+      )
+    }
 
-                  <div className="mt-2 text-sm text-zinc-500">
-                    {lesson.notes}
-                  </div>
-                </button>
-              ))}
-
-            {completedLessons.filter(
-              lesson =>
-                lesson.notes.trim() !==
-                '',
-            ).length === 0 && (
-              <div className="rounded-xl border border-dashed border-zinc-800 px-5 py-8 text-center text-sm text-zinc-600">
-                No completed lesson
-                notes yet.
-              </div>
-            )}
+    return (
+      <button
+        onClick={() =>
+          setSelectedLesson(
+            latestNoteLesson,
+          )
+        }
+        className="mt-4 w-full rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-left transition hover:border-zinc-700 hover:bg-zinc-800"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="text-sm font-medium text-zinc-200">
+            {latestNoteLesson.title}
           </div>
-        </section>
+
+          <div className="shrink-0 text-xs text-zinc-600">
+            {latestNoteLesson.date}
+            {' · '}
+            {latestNoteLesson.startTime}
+          </div>
+        </div>
+
+        <div className="mt-2 text-sm text-zinc-400">
+          {latestNoteLesson.notes}
+        </div>
+      </button>
+    )
+  })()}
+</section>
+```
+
 
    {selectedLesson && (
   <LessonModal

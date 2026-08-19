@@ -822,7 +822,7 @@ if (editingStudent) {
       ` · Grade ${selectedStudent.grade}`}
   </div>
 </div>
-```
+
 
 
             
@@ -1209,7 +1209,7 @@ if (editingStudent) {
     )
   })()}
 </section>
-```
+
 
 
    {selectedLesson && (

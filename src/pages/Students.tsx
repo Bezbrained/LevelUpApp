@@ -20,10 +20,6 @@ import {
   deleteStudent,
 } from '../lib/students'
 
-import {
-  academicHoursFromMinutes,
-} from '../types'
-
 import LessonModal from '../components/LessonModal'
 import StudentModal from '../components/StudentModal'
 
@@ -400,77 +396,87 @@ if (editingStudent) {
     )
 
   const attendedLessons =
-    completedLessons.filter(
-      lesson =>
+  completedLessons.filter(
+    lesson => {
+      const lessonDate =
+        new Date(
+          `${lesson.date}T00:00:00`,
+        )
+
+      return (
+        lessonDate.getFullYear() ===
+          currentMonth.getFullYear() &&
+        lessonDate.getMonth() ===
+          currentMonth.getMonth() &&
         lesson.students.some(
           student =>
             student.studentId ===
               selectedStudent?.id &&
             student.attended,
-        ),
-    )
+        )
+      )
+    },
+  )
 
   /*
    * Count lessons based on the number
    * of students who actually attended.
    */
-  const lessonStats = useMemo(() => {
-    let individualCount = 0
-    let pairCount = 0
-    let groupCount = 0
-
-    let individualHours = 0
-    let pairHours = 0
-    let groupHours = 0
-
-    attendedLessons.forEach(
-      lesson => {
-        const attendedCount =
-          lesson.students.filter(
-            student =>
-              student.attended,
-          ).length
-
-        const duration =
-          lesson.actualDurationMinutes ??
-          lesson.plannedDuration
-
-        const hours =
-          academicHoursFromMinutes(
-            duration,
-          )
-
-        if (
-          attendedCount === 1
-        ) {
-          individualCount++
-          individualHours +=
-            hours
-        } else if (
-          attendedCount === 2
-        ) {
-          pairCount++
-          pairHours += hours
-        } else if (
-          attendedCount >= 3
-        ) {
-          groupCount++
-          groupHours += hours
-        }
-      },
-    )
-
-    return {
-      individualCount,
-      pairCount,
-      groupCount,
-      individualHours,
-      pairHours,
-      groupHours,
+ const lessonStats = useMemo(() => {
+  const stats: Record<
+    string,
+    {
+      type: string
+      duration: number
+      count: number
     }
-  }, [
-    attendedLessons,
-  ])
+  > = {}
+
+  attendedLessons.forEach(lesson => {
+    const attendedCount =
+      lesson.students.filter(
+        student => student.attended,
+      ).length
+
+    let type: string
+
+    if (attendedCount === 1) {
+      type = 'Individual'
+    } else if (attendedCount === 2) {
+      type = 'Pair'
+    } else {
+      type = 'Group'
+    }
+
+    const duration =
+      lesson.actualDurationMinutes ??
+      lesson.plannedDuration
+
+    const key = `${type}-${duration}`
+
+    if (!stats[key]) {
+      stats[key] = {
+        type,
+        duration,
+        count: 0,
+      }
+    }
+
+    stats[key].count++
+  })
+
+  return Object.values(stats).sort(
+    (a, b) => {
+      if (a.type !== b.type) {
+        return a.type.localeCompare(b.type)
+      }
+
+      return a.duration - b.duration
+    },
+  )
+}, [
+  attendedLessons,
+])
 
   const monthDays =
     getMonthDays(currentMonth)
@@ -888,86 +894,35 @@ if (editingStudent) {
               </div>
             )}
 
-            {/* Attendance summary */}
-            <div className="mt-6 border-t border-zinc-800 pt-5">
-              <div className="text-xs font-medium text-zinc-500">
-                Attendance
-              </div>
+         {/* Monthly attendance */}
+<div className="mt-6 border-t border-zinc-800 pt-5">
+  <div className="text-xs font-medium text-zinc-500">
+    Monthly attendance
+  </div>
 
-              <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                {lessonStats.groupCount >
-                  0 && (
-                  <div>
-                    <span className="text-zinc-300">
-                      {lessonStats.groupCount}{' '}
-                      group
-                      {lessonStats.groupCount !==
-                      1
-                        ? 's'
-                        : ''}
-                    </span>
+  <div className="mt-3 space-y-2">
+    {lessonStats.length === 0 && (
+      <div className="text-sm text-zinc-600">
+        No attended lessons this month
+      </div>
+    )}
 
-                    <span className="ml-1 text-zinc-500">
-                      (
-                      {lessonStats.groupHours
-                        .toFixed(1)}
-                      )
-                    </span>
-                  </div>
-                )}
+    {lessonStats.map(stat => (
+      <div
+        key={`${stat.type}-${stat.duration}`}
+        className="flex items-center justify-between rounded-lg bg-zinc-950 px-3 py-2"
+      >
+        <span className="text-sm text-zinc-300">
+          {stat.count} × {stat.type}
+        </span>
 
-                {lessonStats.pairCount >
-                  0 && (
-                  <div>
-                    <span className="text-zinc-300">
-                      {lessonStats.pairCount}{' '}
-                      pair
-                      {lessonStats.pairCount !==
-                      1
-                        ? 's'
-                        : ''}
-                    </span>
-
-                    <span className="ml-1 text-zinc-500">
-                      (
-                      {lessonStats.pairHours
-                        .toFixed(1)}
-                      )
-                    </span>
-                  </div>
-                )}
-
-                {lessonStats.individualCount >
-                  0 && (
-                  <div>
-                    <span className="text-zinc-300">
-                      {
-                        lessonStats.individualCount
-                      }{' '}
-                      individual
-                      {lessonStats.individualCount !==
-                      1
-                        ? 's'
-                        : ''}
-                    </span>
-
-                    <span className="ml-1 text-zinc-500">
-                      (
-                      {lessonStats.individualHours
-                        .toFixed(1)}
-                      )
-                    </span>
-                  </div>
-                )}
-
-                {attendedLessons.length ===
-                  0 && (
-                  <span className="text-zinc-600">
-                    No attended lessons yet
-                  </span>
-                )}
-              </div>
-            </div>
+        <span className="text-sm text-zinc-500">
+          {stat.duration} min
+        </span>
+      </div>
+    ))}
+  </div>
+</div>
 
             {/* Schedule */}
             <div className="mt-6 border-t border-zinc-800 pt-5">
